@@ -1,0 +1,36 @@
+{
+    "name": "bnf/di",
+    "description": "Dependency injection container with PSR-11 and container-interop/service-provider support",
+    "keywords": [
+        "psr-11",
+        "service-provider"
+    ],
+    "authors": [
+        {
+            "name": "Benjamin Franzke",
+            "email": "benjaminfranzke@gmail.com",
+            "role": "Developer",
+            "homepage": "https://bnfr.net"
+        }
+    ],
+    "license": "GPL-2.0+",
+    "require": {
+        "psr/container": "^1.0",
+        "container-interop/service-provider": "~0.4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bnf\\Di\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bnf\\Di\\Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5 || ^7.0",
+        "phpspec/prophecy": "^1.7",
+        "php-coveralls/php-coveralls": "^2.0"
+    }
+}

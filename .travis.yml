@@ -1,0 +1,34 @@
+sudo: false
+
+language: php
+
+dist: trusty
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.2
+      env:
+        - ANALYSIS='true'
+    - php: 7.1
+    - php: 7.0
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - if [[ "$ANALYSIS" != 'true' ]]; then if php -i | grep -q xdebug; then phpenv config-rm xdebug.ini; fi; fi
+  - composer self-update
+  - composer --version
+
+before_script:
+  - composer install
+
+script:
+  - find . -name \*.php ! -path "./vendor/*" -exec php -l {} >/dev/null \;
+  - if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit ; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-text --coverage-clover clover.xml ; fi
+
+after_success:
+  - if [[ "$ANALYSIS" == 'true' ]]; then travis_retry vendor/bin/php-coveralls -v ; fi
