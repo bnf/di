@@ -18,6 +18,9 @@
         "psr/container": "^1.0",
         "container-interop/service-provider": "~0.4.0"
     },
+    "provide": {
+        "psr/container-implementation": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "Bnf\\Di\\": "src"
