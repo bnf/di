@@ -7,13 +7,13 @@
 Provides [PSR-11](www.php-fig.org/psr/psr-11/) and
 [container-interop/service-provider](https://github.com/container-interop/service-provider) support.
 
-## Usage
+## Installation
 
 ```sh
 $ composer require bnf/di:~0.1.0
 ```
 
-### Quick Example
+## Usage
 
 ```php
 <?php
@@ -27,7 +27,7 @@ $container = new Container([new class implements ServiceProviderInterface {
     public function getFactories()
     {
         return [
-            stdClass::class => function(ContainerInterface $container) {
+            stdClass::class => function (ContainerInterface $container) {
                 return new stdClass;
             }
         ];
