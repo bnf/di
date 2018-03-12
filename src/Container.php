@@ -70,12 +70,6 @@ class Container implements ContainerInterface
      * @return mixed
      */
     private function create(string $id) {
-        // This condition is triggered in the unlikely case that the entry is null
-        // Note: That is because the coalesce operator used in get() can not handle that case
-        if (array_key_exists($id, $this->entries)) {
-            return $this->entries[$id];
-        }
-
         $factory = $this->factories[$id] ?? null;
 
         if ($factory) {
@@ -85,6 +79,10 @@ class Container implements ContainerInterface
             $this->factories[$id] = false;
 
             return $this->entries[$id] = ($factory)($this);
+        } elseif (array_key_exists($id, $this->entries)) {
+            // This condition is triggered in the unlikely case that the entry is null
+            // Note: That is because the coalesce operator used in get() can not handle that
+            return $this->entries[$id];
         } elseif ($factory === false) {
             throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
             };
