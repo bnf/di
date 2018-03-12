@@ -69,6 +69,31 @@ class Container implements ContainerInterface
     }
 
     /**
+     * @param strign $id
+     * @return mixed
+     */
+    private function create(string $id) {
+        // This condition is triggered in the unlikely case that the entry is null
+        // Note: That is because the coalesce operator used in get() can not handle that case
+        if (array_key_exists($id, $this->entries)) {
+            return $this->entries[$id];
+        }
+
+        $factory = $this->factories[$id];
+        if ($factory === false) {
+            throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
+            };
+        }
+
+        // Remove factory as it is no longer required.
+        // Set factory to false to be able to detect
+        // cyclic dependency loops.
+        $this->factories[$id] = false;
+
+        return $this->entries[$id] = ($factory)($this);
+    }
+
+    /**
      * @param string $id
      * @return mixed
      * @throws NotFoundException
@@ -80,21 +105,6 @@ class Container implements ContainerInterface
             };
         }
 
-        if (!array_key_exists($id, $this->entries)) {
-            $factory = $this->factories[$id];
-            if ($factory === false) {
-                throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
-                };
-            }
-
-            // Remove factory as it is no longer required.
-            // Set factory to false to be able to detect
-            // cyclic dependency loops.
-            $this->factories[$id] = false;
-
-            $this->entries[$id] = ($factory)($this);
-        }
-
-        return $this->entries[$id];
+        return $this->entries[$id] ?? $this->create($id);
     }
 }
