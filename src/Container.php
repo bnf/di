@@ -46,7 +46,7 @@ class Container implements ContainerInterface
                     };
                 } else {
                     // calling extension as a regular factory means the second parameter is null
-                    // If the extension declares a non-nullable type  for the second parameter the
+                    // If the extension declares a non-nullable type for the second parameter the
                     // call will fail – by intent.
                     $this->factories[$id] = $extension;
                 }
@@ -64,7 +64,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param strign $id
+     * @param string $id
      * @return mixed
      */
     private function create(string $id) {
