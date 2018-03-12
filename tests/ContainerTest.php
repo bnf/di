@@ -119,6 +119,25 @@ class ContainertTest extends TestCase
         $this->assertNull($container->get('null'));
     }
 
+    public function testNullValueEntryCallsFactoryOnlyOnce()
+    {
+        $calledCount = 0;
+        $factory = function () use (&$calledCount) {
+            $calledCount++;
+            return null;
+        };
+        $this->providerProphecy->getFactories()->willReturn([
+            'null' => $factory,
+        ]);
+        $container = new Container([$this->providerProphecy->reveal()]);
+
+        $this->assertTrue($container->has('null'));
+        $this->assertNull($container->get('null'));
+        $this->assertTrue($container->has('null'));
+        $this->assertNull($container->get('null'));
+        $this->assertEquals($calledCount, 1);
+    }
+
     public function testHas()
     {
         $this->providerProphecy->getFactories()->willReturn([

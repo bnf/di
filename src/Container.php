@@ -65,7 +65,7 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        return isset($this->entries[$id]) || isset($this->factories[$id]);
+        return array_key_exists($id, $this->entries) || array_key_exists($id, $this->factories);
     }
 
     /**
@@ -80,7 +80,7 @@ class Container implements ContainerInterface
             };
         }
 
-        if (!isset($this->entries[$id])) {
+        if (!array_key_exists($id, $this->entries)) {
             $factory = $this->factories[$id];
             if ($factory === false) {
                 throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
