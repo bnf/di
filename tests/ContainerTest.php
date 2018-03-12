@@ -306,7 +306,7 @@ class ContainertTest extends TestCase
         $this->assertEquals('value', $container->get('service'));
     }
 
-    public function testCyclicDepndency()
+    public function testCyclicDependency()
     {
         $this->providerProphecy->getFactories()->willReturn([
             'A' => function (ContainerInterface $container) {
@@ -321,6 +321,29 @@ class ContainertTest extends TestCase
 
         $this->expectException(ContainerExceptionInterface::class);
         $this->expectExceptionMessage('Container entry "A" is part of a cyclic dependency chain.');
+        $container->get('A');
+    }
+
+    public function testCyclicDependencyRetrievedTwice()
+    {
+        $this->providerProphecy->getFactories()->willReturn([
+            'A' => function (ContainerInterface $container) {
+                return $container->get('B');
+            },
+            'B' => function (ContainerInterface $container) {
+                return $container->get('A');
+            },
+        ]);
+
+        $container = new Container([$this->providerProphecy->reveal()]);
+
+        $this->expectException(ContainerExceptionInterface::class);
+        $this->expectExceptionMessage('Container entry "A" is part of a cyclic dependency chain.');
+        try {
+            $container->get('A');
+        } catch (ContainerExceptionInterface $e) {
+        }
+        $this->assertTrue($container->has('A'));
         $container->get('A');
     }
 
