@@ -34,10 +34,7 @@ class Container implements ContainerInterface
         foreach ($providers as $provider) {
             // @todo sanity check if $provider implements ServiceProviderInterface?
             // @todo sanity check if factory is callable
-            $factories = $provider->getFactories();
-            foreach ($factories as $id => $factory) {
-                $this->factories[$id] = $factory;
-            }
+            $this->factories = $provider->getFactories() + $this->factories;
         }
 
         foreach ($providers as $provider) {
@@ -79,8 +76,12 @@ class Container implements ContainerInterface
             return $this->entries[$id];
         }
 
-        $factory = $this->factories[$id];
-        if ($factory === false) {
+        $factory = $this->factories[$id] ?? null;
+
+        if ($factory === null) {
+            throw new class('Container entry "' . $id . '" is not available.', 1519978105) extends Exception implements NotFoundExceptionInterface {
+            };
+        } elseif ($factory === false) {
             throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
             };
         }
@@ -100,11 +101,6 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        if (!$this->has($id)) {
-            throw new class('Container entry "' . $id . '" is not available.', 1519978105) extends Exception implements NotFoundExceptionInterface {
-            };
-        }
-
         return $this->entries[$id] ?? $this->create($id);
     }
 }
