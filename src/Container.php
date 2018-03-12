@@ -3,9 +3,7 @@ declare(strict_types = 1);
 namespace Bnf\Di;
 
 use Exception;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class Container implements ContainerInterface
 {
@@ -84,18 +82,15 @@ class Container implements ContainerInterface
             // Note: That is because the coalesce operator used in get() can not handle that
             return $this->entries[$id];
         } elseif ($factory === false) {
-            throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
-            };
+            throw new ContainerException('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002);
         } else /*if ($factory === null)*/ {
-            throw new class('Container entry "' . $id . '" is not available.', 1519978105) extends Exception implements NotFoundExceptionInterface {
-            };
+            throw new NotFoundException('Container entry "' . $id . '" is not available.', 1519978105);
         }
     }
 
     /**
      * @param string $id
      * @return mixed
-     * @throws NotFoundException
      */
     public function get($id)
     {
