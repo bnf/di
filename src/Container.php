@@ -78,20 +78,20 @@ class Container implements ContainerInterface
 
         $factory = $this->factories[$id] ?? null;
 
-        if ($factory === null) {
-            throw new class('Container entry "' . $id . '" is not available.', 1519978105) extends Exception implements NotFoundExceptionInterface {
-            };
+        if ($factory) {
+            // Remove factory as it is no longer required.
+            // Set factory to false to be able to detect
+            // cyclic dependency loops.
+            $this->factories[$id] = false;
+
+            return $this->entries[$id] = ($factory)($this);
         } elseif ($factory === false) {
             throw new class('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002) extends Exception implements ContainerExceptionInterface {
             };
+        } else /*if ($factory === null)*/ {
+            throw new class('Container entry "' . $id . '" is not available.', 1519978105) extends Exception implements NotFoundExceptionInterface {
+            };
         }
-
-        // Remove factory as it is no longer required.
-        // Set factory to false to be able to detect
-        // cyclic dependency loops.
-        $this->factories[$id] = false;
-
-        return $this->entries[$id] = ($factory)($this);
     }
 
     /**
