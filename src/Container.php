@@ -2,19 +2,14 @@
 declare(strict_types = 1);
 namespace Bnf\Di;
 
-use Exception;
 use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $entries = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $factories = [];
 
     /**
@@ -67,7 +62,8 @@ class Container implements ContainerInterface
      * @param string $id
      * @return mixed
      */
-    private function create(string $id) {
+    private function create(string $id)
+    {
         $factory = $this->factories[$id] ?? null;
 
         if ($factory) {
@@ -77,15 +73,17 @@ class Container implements ContainerInterface
             $this->factories[$id] = false;
 
             return $this->entries[$id] = ($factory)($this);
-        } elseif (array_key_exists($id, $this->entries)) {
+        }
+        if (array_key_exists($id, $this->entries)) {
             // This condition is triggered in the unlikely case that the entry is null
             // Note: That is because the coalesce operator used in get() can not handle that
             return $this->entries[$id];
-        } elseif ($factory === false) {
-            throw new ContainerException('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002);
-        } else /*if ($factory === null)*/ {
-            throw new NotFoundException('Container entry "' . $id . '" is not available.', 1519978105);
         }
+        if ($factory === false) {
+            throw new ContainerException('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002);
+        }
+        // if ($factory === null)
+        throw new NotFoundException('Container entry "' . $id . '" is not available.', 1519978105);
     }
 
     /**

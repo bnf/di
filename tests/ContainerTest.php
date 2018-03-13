@@ -394,6 +394,5 @@ class ContainertTest extends TestCase
     }
 
     // @todo: test leaking factories?
-    // @todo: ContainerException when get() fails?
     // @todo: passing non ServiceProvider as parameter
 }
