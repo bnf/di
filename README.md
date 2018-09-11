@@ -24,15 +24,15 @@ use Psr\Container\ContainerInterface;
 use Interop\Container\ServiceProviderInterface;
 
 $container = new Container([new class implements ServiceProviderInterface {
-    public function getFactories()
+    public function getFactories(): array
     {
         return [
-            stdClass::class => function (ContainerInterface $container) {
+            stdClass::class => function (ContainerInterface $container): stdClass {
                 return new stdClass;
             }
         ];
     }
-    public function getExtensions()
+    public function getExtensions(): array
     {
         return [];
     }
