@@ -1,5 +1,6 @@
 # PSR-11+ Dependency Injection Container
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/bnf/di/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/bnf/di/?branch=master)
 [![Build Status](https://api.travis-ci.org/bnf/di.png)](https://travis-ci.org/bnf/di)
 [![Coverage Status](https://coveralls.io/repos/github/bnf/di/badge.svg)](https://coveralls.io/github/bnf/di)
 
