@@ -14,7 +14,7 @@ use stdClass as Service;
 /**
  * Testcase for the Container class
  */
-class ContainertTest extends TestCase
+class ContainerTest extends TestCase
 {
     /**
      * @var ServiceProviderInterface|ObjectProphecy

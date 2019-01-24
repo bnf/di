@@ -18,7 +18,7 @@ class Container implements ContainerInterface
      * Objects and parameters can be passed as argument to the constructor.
      *
      * @param array $providers The service providers to register.
-     * @param array $entires The default parameters or objects.
+     * @param array $entries The default parameters or objects.
      */
     public function __construct(array $providers = [], array $entries = [])
     {
