@@ -12,3 +12,6 @@ test-coverage: vendor/autoload.php
 
 lint:
 	find . -name '*.php' '!' -path './vendor/*' -exec php -l {} >/dev/null \;
+
+stan:
+	vendor/bin/phpstan analyze

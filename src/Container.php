@@ -66,7 +66,7 @@ class Container implements ContainerInterface
     {
         $factory = $this->factories[$id] ?? null;
 
-        if ($factory) {
+        if ((bool)$factory) {
             // Remove factory as it is no longer required.
             // Set factory to false to be able to detect
             // cyclic dependency loops.

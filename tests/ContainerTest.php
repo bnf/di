@@ -17,11 +17,11 @@ use stdClass as Service;
 class ContainerTest extends TestCase
 {
     /**
-     * @var ServiceProviderInterface|ObjectProphecy
+     * @var ObjectProphecy
      */
     protected $providerProphecy;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -37,12 +37,12 @@ class ContainerTest extends TestCase
         return $prophecy;
     }
 
-    public function testImplementsInterface()
+    public function testImplementsInterface(): void
     {
-        $this->assertInstanceOf(ContainerInterface::class, new Container);
+        self::assertInstanceOf(ContainerInterface::class, new Container);
     }
 
-    public function testWithString()
+    public function testWithString(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'param' => function () {
@@ -51,28 +51,30 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertTrue($container->has('param'));
-        $this->assertEquals('value', $container->get('param'));
+        self::assertTrue($container->has('param'));
+        self::assertEquals('value', $container->get('param'));
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testGet($factory)
+    public function testGet($factory): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'service' => $factory,
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertTrue($container->has('service'));
-        $this->assertInstanceOf(Service::class, $container->get('service'));
+        self::assertTrue($container->has('service'));
+        self::assertInstanceOf(Service::class, $container->get('service'));
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testMultipleGetServicesShouldBeEqual($factory)
+    public function testMultipleGetServicesShouldBeEqual($factory): void
     {
         $this->providerProphecy->getFactories()->willReturn([ 'service' => $factory ]);
         // A factory can also be used as extension, as it's based on the same signature
@@ -86,11 +88,11 @@ class ContainerTest extends TestCase
         $extensionOne = $container->get('extension');
         $extensionTwo = $container->get('extension');
 
-        $this->assertSame($serviceOne, $serviceTwo);
-        $this->assertSame($extensionOne, $extensionTwo);
+        self::assertSame($serviceOne, $serviceTwo);
+        self::assertSame($extensionOne, $extensionTwo);
     }
 
-    public function testPassesContainerAsParameter()
+    public function testPassesContainerAsParameter(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'service' => function () {
@@ -102,11 +104,11 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertNotSame($container, $container->get('service'));
-        $this->assertSame($container, $container->get('container'));
+        self::assertNotSame($container, $container->get('service'));
+        self::assertSame($container, $container->get('container'));
     }
 
-    public function testNullValueEntry()
+    public function testNullValueEntry(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'null' => function () {
@@ -115,11 +117,11 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertTrue($container->has('null'));
-        $this->assertNull($container->get('null'));
+        self::assertTrue($container->has('null'));
+        self::assertNull($container->get('null'));
     }
 
-    public function testNullValueEntryCallsFactoryOnlyOnce()
+    public function testNullValueEntryCallsFactoryOnlyOnce(): void
     {
         $calledCount = 0;
         $factory = function () use (&$calledCount) {
@@ -131,14 +133,14 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertTrue($container->has('null'));
-        $this->assertNull($container->get('null'));
-        $this->assertTrue($container->has('null'));
-        $this->assertNull($container->get('null'));
-        $this->assertEquals($calledCount, 1);
+        self::assertTrue($container->has('null'));
+        self::assertNull($container->get('null'));
+        self::assertTrue($container->has('null'));
+        self::assertNull($container->get('null'));
+        self::assertEquals($calledCount, 1);
     }
 
-    public function testHas()
+    public function testHas(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'service' => function () {
@@ -159,23 +161,23 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertTrue($container->has('param'));
-        $this->assertTrue($container->has('service'));
-        $this->assertTrue($container->has('int'));
-        $this->assertTrue($container->has('bool'));
-        $this->assertTrue($container->has('null'));
-        $this->assertFalse($container->has('non_existent'));
+        self::assertTrue($container->has('param'));
+        self::assertTrue($container->has('service'));
+        self::assertTrue($container->has('int'));
+        self::assertTrue($container->has('bool'));
+        self::assertTrue($container->has('null'));
+        self::assertFalse($container->has('non_existent'));
     }
 
-    public function testDefaultEntry()
+    public function testDefaultEntry(): void
     {
         $default = ['param' => 'value'];
         $container = new Container([], $default);
 
-        $this->assertSame('value', $container->get('param'));
+        self::assertSame('value', $container->get('param'));
     }
 
-    public function testGetValidatesKeyIsPresent()
+    public function testGetValidatesKeyIsPresent(): void
     {
         $container = new Container();
 
@@ -186,8 +188,9 @@ class ContainerTest extends TestCase
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testExtension($factory)
+    public function testExtension($factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -201,13 +204,14 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$providerA->reveal(), $providerB->reveal()]);
 
-        $this->assertSame('value', $container->get('service')->value);
+        self::assertSame('value', $container->get('service')->value);
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testExtendingLaterProvider($factory)
+    public function testExtendingLaterProvider($factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -221,13 +225,14 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$providerB->reveal(), $providerA->reveal()]);
 
-        $this->assertSame('value', $container->get('service')->value);
+        self::assertSame('value', $container->get('service')->value);
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testExtendingOwnFactory($factory)
+    public function testExtendingOwnFactory($factory): void
     {
         $this->providerProphecy->getFactories()->willReturn(['service' => $factory]);
         $this->providerProphecy->getExtensions()->willReturn(
@@ -240,10 +245,10 @@ class ContainerTest extends TestCase
         );
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertSame('value', $container->get('service')->value);
+        self::assertSame('value', $container->get('service')->value);
     }
 
-    public function testExtendingNonExistingFactory()
+    public function testExtendingNonExistingFactory(): void
     {
         $this->providerProphecy->getExtensions()->willReturn([
             'service' => function (ContainerInterface $c, Service $s = null) {
@@ -256,13 +261,14 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        $this->assertSame('value', $container->get('service')->value);
+        self::assertSame('value', $container->get('service')->value);
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testMultipleExtensions($factory)
+    public function testMultipleExtensions($factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -284,13 +290,14 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$providerA->reveal(), $providerB->reveal(), $providerC->reveal()]);
 
-        $this->assertSame('12', $container->get('service')->value);
+        self::assertSame('12', $container->get('service')->value);
     }
 
     /**
      * @dataProvider objectFactories
+     * @param mixed $factory
      */
-    public function testEntryOverriding($factory)
+    public function testEntryOverriding($factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -302,11 +309,11 @@ class ContainerTest extends TestCase
 
         $container = new Container([$providerA->reveal(), $providerB->reveal()]);
 
-        $this->assertNotInstanceOf(Service::class, $container->get('service'));
-        $this->assertEquals('value', $container->get('service'));
+        self::assertNotInstanceOf(Service::class, $container->get('service'));
+        self::assertEquals('value', $container->get('service'));
     }
 
-    public function testCyclicDependency()
+    public function testCyclicDependency(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'A' => function (ContainerInterface $container) {
@@ -324,7 +331,7 @@ class ContainerTest extends TestCase
         $container->get('A');
     }
 
-    public function testCyclicDependencyRetrievedTwice()
+    public function testCyclicDependencyRetrievedTwice(): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'A' => function (ContainerInterface $container) {
@@ -343,11 +350,11 @@ class ContainerTest extends TestCase
             $container->get('A');
         } catch (ContainerExceptionInterface $e) {
         }
-        $this->assertTrue($container->has('A'));
+        self::assertTrue($container->has('A'));
         $container->get('A');
     }
 
-    public static function factory()
+    public static function factory(): Service
     {
         return new Service();
     }
@@ -356,7 +363,7 @@ class ContainerTest extends TestCase
      * Provider for ServerProvider callables.
      * Either a closure, a static callable or invokable.
      */
-    public function objectFactories()
+    public function objectFactories(): array
     {
         return [
             [
@@ -372,7 +379,7 @@ class ContainerTest extends TestCase
             [
                 // Invokable
                 new class {
-                    public function __invoke()
+                    public function __invoke(): Service
                     {
                         return new Service();
                     }
@@ -382,7 +389,7 @@ class ContainerTest extends TestCase
                 // Non static factory
                 [
                     new class {
-                        public function factory()
+                        public function factory(): Service
                         {
                             return new Service();
                         }
