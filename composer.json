@@ -39,6 +39,7 @@
         "phpstan/phpstan": "^0.11.1",
         "phpstan/phpstan-strict-rules": "^0.11.0",
         "phpstan/phpstan-phpunit": "^0.11.0",
-        "jangregor/phpstan-prophecy": "^0.3.0"
+        "jangregor/phpstan-prophecy": "^0.3.0",
+        "squizlabs/php_codesniffer": "^3.4"
     }
 }

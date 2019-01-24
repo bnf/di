@@ -34,9 +34,9 @@ class Container implements ContainerInterface
             $extensions = $provider->getExtensions();
             foreach ($extensions as $id => $extension) {
                 if (isset($this->factories[$id])) {
-                    $previousFactory = $this->factories[$id];
-                    $this->factories[$id] = function (ContainerInterface $container) use ($extension, $previousFactory) {
-                        $previous = ($previousFactory)($container);
+                    $innerFactory = $this->factories[$id];
+                    $this->factories[$id] = function (ContainerInterface $container) use ($extension, $innerFactory) {
+                        $previous = ($innerFactory)($container);
                         return ($extension)($container, $previous);
                     };
                 } else {
@@ -66,7 +66,7 @@ class Container implements ContainerInterface
     {
         $factory = $this->factories[$id] ?? null;
 
-        if ((bool)$factory) {
+        if ((bool) $factory) {
             // Remove factory as it is no longer required.
             // Set factory to false to be able to detect
             // cyclic dependency loops.
@@ -79,11 +79,11 @@ class Container implements ContainerInterface
             // Note: That is because the coalesce operator used in get() can not handle that
             return $this->entries[$id];
         }
-        if ($factory === false) {
-            throw new ContainerException('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002);
+        if ($factory === null) {
+            throw new NotFoundException('Container entry "' . $id . '" is not available.', 1519978105);
         }
-        // if ($factory === null)
-        throw new NotFoundException('Container entry "' . $id . '" is not available.', 1519978105);
+        // if ($factory === false)
+        throw new ContainerException('Container entry "' . $id . '" is part of a cyclic dependency chain.', 1520175002);
     }
 
     /**

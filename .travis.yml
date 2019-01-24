@@ -28,6 +28,7 @@ script:
   - find . -name \*.php ! -path "./vendor/*" -exec php -l {} >/dev/null \;
   - if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit ; fi
   - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-text --coverage-clover clover.xml ; fi
+  - vendor/bin/phpcs
   - vendor/bin/phpstan analyze
 
 after_success:
