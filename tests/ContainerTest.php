@@ -316,6 +316,33 @@ class ContainerTest extends TestCase
         self::assertEquals('value', $container->get('service'));
     }
 
+    public function testDelegateContainer(): void
+    {
+        $this->providerProphecy = $this->createServiceProviderProphecy();
+        $this->providerProphecy->getFactories()->willReturn([
+            'service2' => function (ContainerInterface $c) {
+                $s = new \stdClass;
+                $s->dependency = $c->get('service');
+                return $s;
+            },
+        ]);
+
+        $rootContainer = new Container([], ['service' => new Service()]);
+        $container = new Container([$this->providerProphecy->reveal()], [], $rootContainer);
+
+        self::assertFalse($container->has('service'));
+        self::assertInstanceOf(Service::class, $container->get('service2')->dependency);
+    }
+
+    public function testDelegateContainerExceptionIfNotInOwnContainer(): void
+    {
+        $rootContainer = new Container([], ['service' => new Service()]);
+        $container = new Container([], [], $rootContainer);
+        $this->expectException(NotFoundExceptionInterface::class);
+        $this->expectExceptionMessage('Container entry "service" is not available.');
+        $container->get('service');
+    }
+
     public function testCyclicDependency(): void
     {
         $this->providerProphecy->getFactories()->willReturn([

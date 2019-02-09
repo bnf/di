@@ -12,6 +12,9 @@ class Container implements ContainerInterface
     /** @var array */
     private $factories = [];
 
+    /** @var ContainerInterface */
+    private $container;
+
     /**
      * Instantiate the container.
      *
@@ -20,9 +23,10 @@ class Container implements ContainerInterface
      * @param array $providers The service providers to register.
      * @param array $entries The default parameters or objects.
      */
-    public function __construct(array $providers = [], array $entries = [])
+    public function __construct(array $providers = [], array $entries = [], ContainerInterface $delegate = null)
     {
         $this->entries = $entries;
+        $this->container = $delegate ?? $this;
 
         foreach ($providers as $provider) {
             // @todo sanity check if $provider implements ServiceProviderInterface?
@@ -72,7 +76,7 @@ class Container implements ContainerInterface
             // cyclic dependency loops.
             $this->factories[$id] = false;
 
-            return $this->entries[$id] = ($factory)($this);
+            return $this->entries[$id] = ($factory)($this->container);
         }
         if (array_key_exists($id, $this->entries)) {
             // This condition is triggered in the unlikely case that the entry is null
