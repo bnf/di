@@ -157,6 +157,9 @@ class ContainerTest extends TestCase
             },
             'null' => function () {
                 return null;
+            },
+            '0' => function () {
+                return 0;
             }
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
