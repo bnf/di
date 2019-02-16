@@ -70,6 +70,18 @@ class ContainerTest extends TestCase
         self::assertInstanceOf(Service::class, $container->get('service'));
     }
 
+    public function testNullContainer(): void
+    {
+        $container = new Container;
+        self::assertFalse($container->has('foo'));
+    }
+
+    public function testNullContainerWithDefaultEntries(): void
+    {
+        $container = new Container([], ['foo' => 'bar']);
+        self::assertTrue($container->has('foo'));
+    }
+
     /**
      * @dataProvider objectFactories
      * @param mixed $factory
@@ -205,7 +217,11 @@ class ContainerTest extends TestCase
                 return $s;
             },
         ]);
-        $container = new Container([$providerA->reveal(), $providerB->reveal()]);
+        $iterator = (function () use ($providerA, $providerB): iterable {
+            yield $providerA->reveal();
+            yield $providerB->reveal();
+        })();
+        $container = new Container($iterator);
 
         self::assertSame('value', $container->get('service')->value);
     }
