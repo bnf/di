@@ -20,37 +20,36 @@ class Container implements ContainerInterface
      *
      * Objects and parameters can be passed as argument to the constructor.
      *
-     * @param array $providers The service providers to register.
+     * @param iterable $providers The service providers to register.
      * @param array $entries The default parameters or objects.
      */
-    public function __construct(array $providers = [], array $entries = [], ContainerInterface $delegate = null)
+    public function __construct(iterable $providers = [], array $entries = [], ContainerInterface $delegate = null)
     {
         $this->entries = $entries;
         $this->container = $delegate ?? $this;
 
+        $factories = [];
         foreach ($providers as $provider) {
-            // @todo sanity check if $provider implements ServiceProviderInterface?
-            // @todo sanity check if factory is callable
-            $this->factories = $provider->getFactories() + $this->factories;
-        }
+            $factories = $provider->getFactories() + $factories;
+            foreach ($provider->getExtensions() as $id => $extension) {
+                // Decorate a previously defined extension or if that is not available,
+                // create a lazy lookup to a factory from the list of vanilla factories.
+                // Lazy because we can not right now, whether a factory that is not yet available
+                // might be available (later on) due to a later provider that defines it.
+                $innerFactory = $this->factories[$id] ?? function (ContainerInterface $c) use (&$factories, $id) {
+                    return isset($factories[$id]) ? $factories[$id]($c) : null;
+                };
 
-        foreach ($providers as $provider) {
-            $extensions = $provider->getExtensions();
-            foreach ($extensions as $id => $extension) {
-                if (isset($this->factories[$id])) {
-                    $innerFactory = $this->factories[$id];
-                    $this->factories[$id] = function (ContainerInterface $container) use ($extension, $innerFactory) {
-                        $previous = ($innerFactory)($container);
-                        return ($extension)($container, $previous);
-                    };
-                } else {
-                    // calling extension as a regular factory means the second parameter is null
-                    // If the extension declares a non-nullable type for the second parameter the
-                    // call will fail – by intent.
-                    $this->factories[$id] = $extension;
-                }
+                $this->factories[$id] = function (ContainerInterface $container) use ($extension, $innerFactory) {
+                    $previous = ($innerFactory)($container);
+                    return ($extension)($container, $previous);
+                };
             }
         }
+
+        // Add factories to the list of factories for services that were not extended.
+        // (i.e those that have not been specified in getExtensions)
+        $this->factories = $this->factories + $factories;
     }
 
     /**

@@ -217,7 +217,11 @@ class ContainerTest extends TestCase
                 return $s;
             },
         ]);
-        $container = new Container([$providerA->reveal(), $providerB->reveal()]);
+        $iterator = (function () use ($providerA, $providerB): iterable {
+            yield $providerA->reveal();
+            yield $providerB->reveal();
+        })();
+        $container = new Container($iterator);
 
         self::assertSame('value', $container->get('service')->value);
     }
