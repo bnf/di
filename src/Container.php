@@ -30,7 +30,7 @@ class Container implements ContainerInterface
 
         $factories = [];
         foreach ($providers as $provider) {
-            $factories = $provider->getFactories() + $factories;
+            $factories = (array) $provider->getFactories() + $factories;
             foreach ($provider->getExtensions() as $id => $extension) {
                 // Decorate a previously defined extension or if that is not available,
                 // create a lazy lookup to a factory from the list of vanilla factories.
