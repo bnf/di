@@ -41,8 +41,8 @@ class Container implements ContainerInterface
                 };
 
                 $this->factories[$id] = function (ContainerInterface $container) use ($extension, $innerFactory) {
-                    $previous = ($innerFactory)($container);
-                    return ($extension)($container, $previous);
+                    $previous = $innerFactory($container);
+                    return $extension($container, $previous);
                 };
             }
         }
@@ -75,7 +75,7 @@ class Container implements ContainerInterface
             // cyclic dependency loops.
             $this->factories[$id] = false;
 
-            return $this->entries[$id] = ($factory)($this->container);
+            return $this->entries[$id] = $factory($this->container);
         }
         if (array_key_exists($id, $this->entries)) {
             // This condition is triggered in the unlikely case that the entry is null
