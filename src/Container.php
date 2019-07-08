@@ -34,8 +34,8 @@ class Container implements ContainerInterface
             foreach ($provider->getExtensions() as $id => $extension) {
                 // Decorate a previously defined extension or if that is not available,
                 // create a lazy lookup to a factory from the list of vanilla factories.
-                // Lazy because we can not right now, whether a factory that is not yet available
-                // might be available (later on) due to a later provider that defines it.
+                // Lazy because we currently can not know whether a factory will only
+                // become available due to a subsequent provider.
                 $innerFactory = $this->factories[$id] ?? function (ContainerInterface $c) use (&$factories, $id) {
                     return isset($factories[$id]) ? $factories[$id]($c) : null;
                 };
