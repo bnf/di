@@ -49,7 +49,7 @@ class Container implements ContainerInterface
 
         // Add factories to the list of factories for services that were not extended.
         // (i.e those that have not been specified in getExtensions)
-        $this->factories = $this->factories + $factories;
+        $this->factories += $factories;
     }
 
     /**
