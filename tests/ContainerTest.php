@@ -17,7 +17,7 @@ use stdClass as Service;
 class ContainerTest extends TestCase
 {
     /**
-     * @var ObjectProphecy
+     * @var ObjectProphecy<ServiceProviderInterface>
      */
     protected $providerProphecy;
 
@@ -28,6 +28,9 @@ class ContainerTest extends TestCase
         $this->providerProphecy = $this->createServiceProviderProphecy();
     }
 
+    /**
+     * @return ObjectProphecy<ServiceProviderInterface>
+     */
     protected function createServiceProviderProphecy(array $extensions = [], array $factories = []): ObjectProphecy
     {
         $prophecy = $this->prophesize();
@@ -39,7 +42,10 @@ class ContainerTest extends TestCase
 
     public function testImplementsInterface(): void
     {
-        self::assertInstanceOf(ContainerInterface::class, new Container);
+        // Cast to object for phpstan to not complain that container is always an instance of ContainerInterface
+        /** @var object $container */
+        $container = new Container;
+        self::assertInstanceOf(ContainerInterface::class, $container);
     }
 
     public function testWithString(): void
@@ -57,9 +63,8 @@ class ContainerTest extends TestCase
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testGet($factory): void
+    public function testGet(callable $factory): void
     {
         $this->providerProphecy->getFactories()->willReturn([
             'service' => $factory,
@@ -84,9 +89,8 @@ class ContainerTest extends TestCase
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testMultipleGetServicesShouldBeEqual($factory): void
+    public function testMultipleGetServicesShouldBeEqual(callable $factory): void
     {
         $this->providerProphecy->getFactories()->willReturn([ 'service' => $factory ]);
         // A factory can also be used as extension, as it's based on the same signature
@@ -203,9 +207,8 @@ class ContainerTest extends TestCase
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testExtension($factory): void
+    public function testExtension(callable $factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -223,14 +226,16 @@ class ContainerTest extends TestCase
         })();
         $container = new Container($iterator);
 
-        self::assertSame('value', $container->get('service')->value);
+        /** @var object{value: string} $service */
+        $service = $container->get('service');
+
+        self::assertSame('value', $service->value);
     }
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testExtendingLaterProvider($factory): void
+    public function testExtendingLaterProvider(callable $factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -244,14 +249,16 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$providerB->reveal(), $providerA->reveal()]);
 
-        self::assertSame('value', $container->get('service')->value);
+        /** @var object{value: string} $service */
+        $service = $container->get('service');
+
+        self::assertSame('value', $service->value);
     }
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testExtendingOwnFactory($factory): void
+    public function testExtendingOwnFactory(callable $factory): void
     {
         $this->providerProphecy->getFactories()->willReturn(['service' => $factory]);
         $this->providerProphecy->getExtensions()->willReturn(
@@ -264,7 +271,10 @@ class ContainerTest extends TestCase
         );
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        self::assertSame('value', $container->get('service')->value);
+        /** @var object{value: string} $service */
+        $service = $container->get('service');
+
+        self::assertSame('value', $service->value);
     }
 
     public function testExtendingNonExistingFactory(): void
@@ -280,14 +290,16 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$this->providerProphecy->reveal()]);
 
-        self::assertSame('value', $container->get('service')->value);
+        /** @var object{value: string} $service */
+        $service = $container->get('service');
+
+        self::assertSame('value', $service->value);
     }
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testMultipleExtensions($factory): void
+    public function testMultipleExtensions(callable $factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -309,14 +321,16 @@ class ContainerTest extends TestCase
         ]);
         $container = new Container([$providerA->reveal(), $providerB->reveal(), $providerC->reveal()]);
 
-        self::assertSame('12', $container->get('service')->value);
+        /** @var object{value: string} $service */
+        $service = $container->get('service');
+
+        self::assertSame('12', $service->value);
     }
 
     /**
      * @dataProvider objectFactories
-     * @param mixed $factory
      */
-    public function testEntryOverriding($factory): void
+    public function testEntryOverriding(callable $factory): void
     {
         $providerA = $this->providerProphecy;
         $providerA->getFactories()->willReturn(['service' => $factory]);
@@ -347,7 +361,11 @@ class ContainerTest extends TestCase
         $container = new Container([$this->providerProphecy->reveal()], [], $rootContainer);
 
         self::assertFalse($container->has('service'));
-        self::assertInstanceOf(Service::class, $container->get('service2')->dependency);
+
+        /** @var object{dependency: mixed} $service2 */
+        $service2 = $container->get('service2');
+
+        self::assertInstanceOf(Service::class, $service2->dependency);
     }
 
     public function testDelegateContainerExceptionIfNotInOwnContainer(): void
