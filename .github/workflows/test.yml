@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Lint
+      run: make lint
+
+    - name: Run phpstan
+      run: make stan
+
+    - name: Run tests
+      run: make test
